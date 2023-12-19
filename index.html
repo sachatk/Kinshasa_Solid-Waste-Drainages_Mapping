@@ -1,0 +1,686 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css">
+        <link rel="stylesheet" href="css/qgis2web.css"><link rel="stylesheet" href="css/fontawesome-all.min.css">
+		<link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <style>
+        #map {
+            width: 1422px;
+            height: 802px;
+			position: relative;
+        }
+		#layerCheckboxes {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            width: 150px;
+        }
+		#layerCheckboxes label {
+            display: block; /* Each label starts on a new line */
+        }
+        </style>
+        <title></title>
+    </head>
+    <body>
+        <div id="map">
+			<div id="layerCheckboxes">
+				<label><input type="checkbox" id="googleLayerCheckbox" onchange="toggleGoogleLayer()"> Google<br></label>
+				<label><input type="checkbox" id="drainagesLayerCheckbox" onchange="toggleDrainagesLayer()"> Drainages</label>
+				<label><input type="checkbox" id="RavinesLayerCheckbox" onchange="toggleRavinesLayer()"> Ravines</label>
+			
+				<label><input type="checkbox" id="WDumpsLayerCheckbox" onchange="toggleWDumpsLayer()"> Waste Dumps</label>
+				<label><input type="checkbox" id="WHeapsAmountLayerCheckbox" onchange="toggleWHeapsAmountLayer()"> Waste heaps amount</label>
+				<label><input type="checkbox" id="WCPlasticLayerCheckbox" onchange="toggleWCPlasticLayer()"> Waste Cover Plastic</label>
+				<label><input type="checkbox" id="WCOrganicLayerCheckbox" onchange="toggleWCOrganicLayer()"> Waste Cover Organic</label>
+				<label><input type="checkbox" id="NonMappedLayerCheckbox" onchange="toggleNonMappedLayer()"> Non mapped</label>
+				<label><input type="checkbox" id="ImpossibleToMapLayerCheckbox" onchange="toggleImpossibleToMapLayer()"> Impossible to map</label>
+
+			</div>
+        </div>
+        <script src="js/qgis2web_expressions.js"></script>
+        <script src="js/leaflet.js"></script>
+        <script src="js/multi-style-layer.js"></script>
+        <script src="js/leaflet-svg-shape-markers.min.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/leaflet.pattern.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="data/CommunesKinElenda_1.js"></script>
+        <script src="data/Notmapped_2.js"></script>
+        <script src="data/Impossibletomap_3.js"></script>
+        <script src="data/waste_heaps_numberpolygon_filled_6.js"></script>
+        <script src="data/WasteDumpsALL_7.js"></script>
+        <script src="data/Ravines_8.js"></script>
+        <script src="data/Drainages_9.js"></script>
+        <script>
+        var map = L.map('map', {
+            zoomControl:true, maxZoom:28, minZoom:1
+        }).fitBounds([[-4.49341607920457,15.244160879133823],[-4.368456715730678,15.464915994776604]]);
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
+        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+        }
+        map.createPane('pane_googlesattelite_0');
+        map.getPane('pane_googlesattelite_0').style.zIndex = 400;
+        var layer_googlesattelite_0 = L.tileLayer('https://www.google.cn/maps/vt?lyrs=s@189&gl=cn&x={x}&y={y}&z={z}', {
+            pane: 'pane_googlesattelite_0',
+            opacity: 1.0,
+            attribution: '',
+            minZoom: 1,
+            maxZoom: 28,
+            minNativeZoom: 0,
+            maxNativeZoom: 18
+        });
+        //layer_googlesattelite_0;
+        map.addLayer(layer_googlesattelite_0);
+		function toggleGoogleLayer() {
+            if (document.getElementById('googleLayerCheckbox').checked) {
+                map.addLayer(layer_googlesattelite_0);
+            } else {
+                map.removeLayer(layer_googlesattelite_0);
+            }
+        }
+        function pop_CommunesKinElenda_1(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['fid'] !== null ? autolinker.link(feature.properties['fid'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Commune'] !== null ? autolinker.link(feature.properties['Commune'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['area'] !== null ? autolinker.link(feature.properties['area'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['layer'] !== null ? autolinker.link(feature.properties['layer'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['path'] !== null ? autolinker.link(feature.properties['path'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+        }
+
+        function style_CommunesKinElenda_1_0() {
+            return {
+                pane: 'pane_CommunesKinElenda_1',
+                opacity: 1,
+                color: 'rgba(77,175,74,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_CommunesKinElenda_1');
+        map.getPane('pane_CommunesKinElenda_1').style.zIndex = 401;
+        map.getPane('pane_CommunesKinElenda_1').style['mix-blend-mode'] = 'normal';
+        var layer_CommunesKinElenda_1 = new L.geoJson(json_CommunesKinElenda_1, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_CommunesKinElenda_1',
+            layerName: 'layer_CommunesKinElenda_1',
+            pane: 'pane_CommunesKinElenda_1',
+            onEachFeature: pop_CommunesKinElenda_1,
+            style: style_CommunesKinElenda_1_0,
+        });
+        bounds_group.addLayer(layer_CommunesKinElenda_1);
+        map.addLayer(layer_CommunesKinElenda_1);
+        function pop_Notmapped_2(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['fid'] !== null ? autolinker.link(feature.properties['fid'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+        }
+
+        var pattern_Notmapped_2_0 = new L.StripePattern({
+            weight: 0.3,
+            spaceWeight: 2.0,
+            color: '#000000',
+            opacity: 1.0,
+            spaceOpacity: 0,
+            angle: 315
+        });
+        pattern_Notmapped_2_0.addTo(map);
+        function style_Notmapped_2_0() {
+            return {
+                pane: 'pane_Notmapped_2',
+                stroke: false,
+                fillOpacity: 1,
+                fillPattern: pattern_Notmapped_2_0,
+                interactive: true,
+            }
+        }
+        var pattern_Notmapped_2_1 = new L.StripePattern({
+            weight: 0.3,
+            spaceWeight: 2.0,
+            color: '#000000',
+            opacity: 1.0,
+            spaceOpacity: 0,
+            angle: 225
+        });
+        pattern_Notmapped_2_1.addTo(map);
+        function style_Notmapped_2_1() {
+            return {
+                pane: 'pane_Notmapped_2',
+                stroke: false,
+                fillOpacity: 1,
+                fillPattern: pattern_Notmapped_2_1,
+                interactive: true,
+            }
+        }
+        function style_Notmapped_2_2() {
+            return {
+                pane: 'pane_Notmapped_2',
+                opacity: 1,
+                color: 'rgba(0,0,0,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 2.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_Notmapped_2');
+        map.getPane('pane_Notmapped_2').style.zIndex = 402;
+        map.getPane('pane_Notmapped_2').style['mix-blend-mode'] = 'normal';
+        var layer_Notmapped_2 = new L.geoJson.multiStyle(json_Notmapped_2, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Notmapped_2',
+            layerName: 'layer_Notmapped_2',
+            pane: 'pane_Notmapped_2',
+            onEachFeature: pop_Notmapped_2,
+            styles: [style_Notmapped_2_0,style_Notmapped_2_1,style_Notmapped_2_2,]
+        });
+        bounds_group.addLayer(layer_Notmapped_2);
+        map.addLayer(layer_Notmapped_2);
+		function toggleNonMappedLayer() {
+            if (document.getElementById('NonMappedLayerCheckbox').checked) {
+                map.addLayer(layer_Notmapped_2);
+            } else {
+                map.removeLayer(layer_Notmapped_2);
+            }
+        }	
+        function pop_Impossibletomap_3(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['fid'] !== null ? autolinker.link(feature.properties['fid'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['layer'] !== null ? autolinker.link(feature.properties['layer'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['path'] !== null ? autolinker.link(feature.properties['path'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+        }
+
+        var pattern_Impossibletomap_3_0 = new L.StripePattern({
+            weight: 0.3,
+            spaceWeight: 2.0,
+            color: '#9a9998',
+            opacity: 1.0,
+            spaceOpacity: 0,
+            angle: 315
+        });
+        pattern_Impossibletomap_3_0.addTo(map);
+        function style_Impossibletomap_3_0() {
+            return {
+                pane: 'pane_Impossibletomap_3',
+                stroke: false,
+                fillOpacity: 1,
+                fillPattern: pattern_Impossibletomap_3_0,
+                interactive: true,
+            }
+        }
+        var pattern_Impossibletomap_3_1 = new L.StripePattern({
+            weight: 0.3,
+            spaceWeight: 2.0,
+            color: '#9a9998',
+            opacity: 1.0,
+            spaceOpacity: 0,
+            angle: 225
+        });
+        pattern_Impossibletomap_3_1.addTo(map);
+        function style_Impossibletomap_3_1() {
+            return {
+                pane: 'pane_Impossibletomap_3',
+                stroke: false,
+                fillOpacity: 1,
+                fillPattern: pattern_Impossibletomap_3_1,
+                interactive: true,
+            }
+        }
+        function style_Impossibletomap_3_2() {
+            return {
+                pane: 'pane_Impossibletomap_3',
+                opacity: 1,
+                color: 'rgba(154,153,152,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 2.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_Impossibletomap_3');
+        map.getPane('pane_Impossibletomap_3').style.zIndex = 403;
+        map.getPane('pane_Impossibletomap_3').style['mix-blend-mode'] = 'normal';
+        var layer_Impossibletomap_3 = new L.geoJson.multiStyle(json_Impossibletomap_3, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Impossibletomap_3',
+            layerName: 'layer_Impossibletomap_3',
+            pane: 'pane_Impossibletomap_3',
+            onEachFeature: pop_Impossibletomap_3,
+            styles: [style_Impossibletomap_3_0,style_Impossibletomap_3_1,style_Impossibletomap_3_2,]
+        });
+        bounds_group.addLayer(layer_Impossibletomap_3);
+        map.addLayer(layer_Impossibletomap_3);
+        map.createPane('pane_WasteCoverOrganicALL_4');
+        map.getPane('pane_WasteCoverOrganicALL_4').style.zIndex = 404;
+        var img_WasteCoverOrganicALL_4 = 'data/WasteCoverOrganicALL_4.png';
+        var img_bounds_WasteCoverOrganicALL_4 = [[-4.486669458686132,15.24510853314386],[-4.373441742011313,15.455144943392163]];
+        var layer_WasteCoverOrganicALL_4 = new L.imageOverlay(img_WasteCoverOrganicALL_4,
+                                              img_bounds_WasteCoverOrganicALL_4,
+                                              {pane: 'pane_WasteCoverOrganicALL_4'});
+        bounds_group.addLayer(layer_WasteCoverOrganicALL_4);
+        map.addLayer(layer_WasteCoverOrganicALL_4);
+		function toggleWCOrganicLayer() {
+            if (document.getElementById('WCOrganicLayerCheckbox').checked) {
+                map.addLayer(layer_WasteCoverOrganicALL_4);
+            } else {
+                map.removeLayer(layer_WasteCoverOrganicALL_4);
+            }
+        }
+        map.createPane('pane_WasteCoverPlasticALL_5');
+        map.getPane('pane_WasteCoverPlasticALL_5').style.zIndex = 405;
+        var img_WasteCoverPlasticALL_5 = 'data/WasteCoverPlasticALL_5.png';
+        var img_bounds_WasteCoverPlasticALL_5 = [[-4.486669458370096,15.24510853306794],[-4.373441741695269,15.45514494331616]];
+        var layer_WasteCoverPlasticALL_5 = new L.imageOverlay(img_WasteCoverPlasticALL_5,
+                                              img_bounds_WasteCoverPlasticALL_5,
+                                              {pane: 'pane_WasteCoverPlasticALL_5'});
+        bounds_group.addLayer(layer_WasteCoverPlasticALL_5);
+        map.addLayer(layer_WasteCoverPlasticALL_5);
+		function toggleWCPlasticLayer() {
+            if (document.getElementById('WCPlasticLayerCheckbox').checked) {
+                map.addLayer(layer_WasteCoverPlasticALL_5);
+            } else {
+                map.removeLayer(layer_WasteCoverPlasticALL_5);
+            }
+        }
+        function pop_waste_heaps_numberpolygon_filled_6(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['fid'] !== null ? autolinker.link(feature.properties['fid'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['index_right'] !== null ? autolinker.link(feature.properties['index_right'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['size'] !== null ? autolinker.link(feature.properties['size'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+        }
+
+        function style_waste_heaps_numberpolygon_filled_6_0(feature) {
+            if (feature.properties['size'] >= 0.000000 && feature.properties['size'] <= 0.000000 ) {
+                return {
+                pane: 'pane_waste_heaps_numberpolygon_filled_6',
+                opacity: 1,
+                color: 'rgba(38,89,128,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(65,39,131,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['size'] >= 0.000000 && feature.properties['size'] <= 1.000000 ) {
+                return {
+                pane: 'pane_waste_heaps_numberpolygon_filled_6',
+                opacity: 1,
+                color: 'rgba(56,128,54,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(39,12,158,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['size'] >= 1.000000 && feature.properties['size'] <= 2.000000 ) {
+                return {
+                pane: 'pane_waste_heaps_numberpolygon_filled_6',
+                interactive: true,
+            }
+            }
+            if (feature.properties['size'] >= 2.000000 && feature.properties['size'] <= 5.000000 ) {
+                return {
+                pane: 'pane_waste_heaps_numberpolygon_filled_6',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,138,49,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['size'] >= 5.000000 && feature.properties['size'] <= 10.000000 ) {
+                return {
+                pane: 'pane_waste_heaps_numberpolygon_filled_6',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,34,41,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['size'] >= 10.000000 && feature.properties['size'] <= 300.000000 ) {
+                return {
+                pane: 'pane_waste_heaps_numberpolygon_filled_6',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(202,0,32,1.0)',
+                interactive: true,
+            }
+            }
+        }
+        map.createPane('pane_waste_heaps_numberpolygon_filled_6');
+        map.getPane('pane_waste_heaps_numberpolygon_filled_6').style.zIndex = 406;
+        map.getPane('pane_waste_heaps_numberpolygon_filled_6').style['mix-blend-mode'] = 'normal';
+        var layer_waste_heaps_numberpolygon_filled_6 = new L.geoJson(json_waste_heaps_numberpolygon_filled_6, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_waste_heaps_numberpolygon_filled_6',
+            layerName: 'layer_waste_heaps_numberpolygon_filled_6',
+            pane: 'pane_waste_heaps_numberpolygon_filled_6',
+            onEachFeature: pop_waste_heaps_numberpolygon_filled_6,
+            style: style_waste_heaps_numberpolygon_filled_6_0,
+        });
+        bounds_group.addLayer(layer_waste_heaps_numberpolygon_filled_6);
+        map.addLayer(layer_waste_heaps_numberpolygon_filled_6);
+		function toggleWHeapsAmountLayer() {
+            if (document.getElementById('WHeapsAmountLayerCheckbox').checked) {
+                map.addLayer(layer_waste_heaps_numberpolygon_filled_6);
+            } else {
+                map.removeLayer(layer_waste_heaps_numberpolygon_filled_6);
+            }
+        }
+        function pop_WasteDumpsALL_7(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Type de déchets'] !== null ? autolinker.link(feature.properties['Type de déchets'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Largeur (en mètre) '] !== null ? autolinker.link(feature.properties['Largeur (en mètre) '].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Longueur (en mètre)'] !== null ? autolinker.link(feature.properties['Longueur (en mètre)'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Hauteur (en mètre)'] !== null ? autolinker.link(feature.properties['Hauteur (en mètre)'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['layer'] !== null ? autolinker.link(feature.properties['layer'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['path'] !== null ? autolinker.link(feature.properties['path'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+        }
+
+        function style_WasteDumpsALL_7_0() {
+            return {
+                pane: 'pane_WasteDumpsALL_7',
+                radius: 7.33334,
+                opacity: 1,
+                color: 'rgba(184,8,8,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(184,8,8,1.0)',
+                interactive: true,
+            }
+        }
+        function style_WasteDumpsALL_7_1() {
+            return {
+                pane: 'pane_WasteDumpsALL_7',
+                radius: 8.0,
+                opacity: 1,
+                color: 'rgba(255,0,0,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,0,0,1.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_WasteDumpsALL_7');
+        map.getPane('pane_WasteDumpsALL_7').style.zIndex = 407;
+        map.getPane('pane_WasteDumpsALL_7').style['mix-blend-mode'] = 'normal';
+        var layer_WasteDumpsALL_7 = new L.geoJson.multiStyle(json_WasteDumpsALL_7, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_WasteDumpsALL_7',
+            layerName: 'layer_WasteDumpsALL_7',
+            pane: 'pane_WasteDumpsALL_7',
+            onEachFeature: pop_WasteDumpsALL_7,
+            pointToLayers: [function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.shapeMarker(latlng, style_WasteDumpsALL_7_0(feature));
+            },function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.shapeMarker(latlng, style_WasteDumpsALL_7_1(feature));
+            },
+        ]});
+        bounds_group.addLayer(layer_WasteDumpsALL_7);
+        map.addLayer(layer_WasteDumpsALL_7);
+		function toggleWDumpsLayer() {
+            if (document.getElementById('WDumpsLayerCheckbox').checked) {
+                map.addLayer(layer_WasteDumpsALL_7);
+            } else {
+                map.removeLayer(layer_WasteDumpsALL_7);
+            }
+        }
+        function pop_Ravines_8(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['fid'] !== null ? autolinker.link(feature.properties['fid'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Largueur au dessus (en mètre)'] !== null ? autolinker.link(feature.properties['Largueur au dessus (en mètre)'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Largeur au fond (en mètre)'] !== null ? autolinker.link(feature.properties['Largeur au fond (en mètre)'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Profondeur (en mètre)'] !== null ? autolinker.link(feature.properties['Profondeur (en mètre)'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Couverture de déchets (%)'] !== null ? autolinker.link(feature.properties['Couverture de déchets (%)'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['layer'] !== null ? autolinker.link(feature.properties['layer'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['path'] !== null ? autolinker.link(feature.properties['path'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+        }
+
+        function style_Ravines_8_0() {
+            return {
+                pane: 'pane_Ravines_8',
+                opacity: 1,
+                color: 'rgba(182,72,180,1.0)',
+                dashArray: '',
+                lineCap: 'round',
+                lineJoin: 'round',
+                weight: 2.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_Ravines_8');
+        map.getPane('pane_Ravines_8').style.zIndex = 408;
+        map.getPane('pane_Ravines_8').style['mix-blend-mode'] = 'normal';
+        var layer_Ravines_8 = new L.geoJson(json_Ravines_8, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Ravines_8',
+            layerName: 'layer_Ravines_8',
+            pane: 'pane_Ravines_8',
+            onEachFeature: pop_Ravines_8,
+            style: style_Ravines_8_0,
+        });
+        bounds_group.addLayer(layer_Ravines_8);
+        map.addLayer(layer_Ravines_8);
+		function toggleRavinesLayer() {
+            if (document.getElementById('RavinesLayerCheckbox').checked) {
+                map.addLayer(layer_Ravines_8);
+            } else {
+                map.removeLayer(layer_Ravines_8);
+            }
+        }
+        function pop_Drainages_9(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Type de drainage'] !== null ? autolinker.link(feature.properties['Type de drainage'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Protection du drainage'] !== null ? autolinker.link(feature.properties['Protection du drainage'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Largeur (cm)'] !== null ? autolinker.link(feature.properties['Largeur (cm)'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Couverture des déchets plastiques (%)'] !== null ? autolinker.link(feature.properties['Couverture des déchets plastiques (%)'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Type de déchets plastiques'] !== null ? autolinker.link(feature.properties['Type de déchets plastiques'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Stagnation de l’eau'] !== null ? autolinker.link(feature.properties['Stagnation de l’eau'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Profondeur (cm)'] !== null ? autolinker.link(feature.properties['Profondeur (cm)'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Hateur remplissage terre/construction/organique (%) '] !== null ? autolinker.link(feature.properties['Hateur remplissage terre/construction/organique (%) '].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['length'] !== null ? autolinker.link(feature.properties['length'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['layer'] !== null ? autolinker.link(feature.properties['layer'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['path'] !== null ? autolinker.link(feature.properties['path'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+        }
+
+        function style_Drainages_9_0() {
+            return {
+                pane: 'pane_Drainages_9',
+                opacity: 1,
+                color: 'rgba(72,123,182,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 3.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_Drainages_9');
+        map.getPane('pane_Drainages_9').style.zIndex = 409;
+        map.getPane('pane_Drainages_9').style['mix-blend-mode'] = 'normal';
+        var layer_Drainages_9 = new L.geoJson(json_Drainages_9, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Drainages_9',
+            layerName: 'layer_Drainages_9',
+            pane: 'pane_Drainages_9',
+            onEachFeature: pop_Drainages_9,
+            style: style_Drainages_9_0,
+        });
+        bounds_group.addLayer(layer_Drainages_9);
+        map.addLayer(layer_Drainages_9);
+		function toggleDrainagesLayer() {
+            if (document.getElementById('drainagesLayerCheckbox').checked) {
+                map.addLayer(layer_Drainages_9);
+            } else {
+                map.removeLayer(layer_Drainages_9);
+            }
+        }	
+        setBounds();
+        L.ImageOverlay.include({
+            getBounds: function () {
+                return this._bounds;
+            }
+        });
+        </script>
+    </body>
+</html>
